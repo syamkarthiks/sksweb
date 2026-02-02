@@ -34,39 +34,32 @@
 </table>
 
 <script>
-fetch('/api/visitors')
-  .then(res => res.json())
-  .then(data => {
-    const tbody = document.querySelector("#table tbody");
-    tbody.innerHTML = "";
+async function loadData() {
+  const res = await fetch("/api/visitors");
+  const data = await res.json();
 
-    data.forEach(v => {
-      const mapLink = (v.latitude && v.longitude)
-        ? `<a href="https://www.google.com/maps?q=${v.latitude},${v.longitude}" target="_blank">View</a>`
-        : "-";
+  const tbody = document.getElementById("data");
+  tbody.innerHTML = "";
 
-      const row = `
-        <tr>
-          <td>${v.ip || "-"}</td>
-          <td>${v.country || "-"}</td>
-          <td>${v.region || "-"}</td>
-          <td>${v.city || "-"}</td>
-          <td>${v.timezone || "-"}</td>
-          <td>${v.isp || "-"}</td>
-          <td>${v.os || "-"}</td>
-          <td>${v.page || "-"}</td>
-          <td>${v.referrer || "-"}</td>
-          <td>${v.created_at ? new Date(v.created_at).toLocaleString() : "-"}</td>
-          <td>${mapLink}</td>
-        </tr>
-      `;
-
-      tbody.innerHTML += row;
-    });
-  })
-  .catch(err => {
-    document.body.innerHTML += "<p>Error loading data</p>";
+  data.forEach(v => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${v.ip}</td>
+        <td>${v.country || "-"}</td>
+        <td>${v.region || "-"}</td>
+        <td>${v.city || "-"}</td>
+        <td>${v.isp || "-"}</td>
+        <td>${v.timezone || "-"}</td>
+        <td>${v.os || "-"}</td>
+        <td>${v.network_type || "-"}</td>
+        <td>${v.dark_mode ? "Yes" : "No"}</td>
+        <td>${v.referrer || "-"}</td>
+        <td>${new Date(v.created_at).toLocaleString()}</td>
+      </tr>
+    `;
   });
+}
+loadData();
 </script>
 
 </body>
