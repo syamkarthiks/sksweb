@@ -3,6 +3,7 @@ export default async function handler(req, res) {
   const SUPABASE_KEY = "sb_publishable_f9MIKH_F9LHTUePZ6D5lYg_0zQob5vX";
 
   try {
+    // 🔎 Get Real IP
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
@@ -13,31 +14,40 @@ export default async function handler(req, res) {
     const timezone = req.query.tz || null;
     const darkMode = req.query.dark === "true";
     const networkType = req.query.net || "unknown";
-
     const created_at = new Date().toISOString();
 
-    // Detect OS
+    // 🖥 Detect Operating System
     let os = "Other";
     if (userAgent.includes("Android")) os = "Android";
     else if (userAgent.includes("Windows")) os = "Windows";
     else if (userAgent.includes("iPhone") || userAgent.includes("iOS")) os = "iOS";
     else if (userAgent.includes("Mac")) os = "Mac";
 
-    let city = null;
+    // 🌍 GEO LOOKUP (HTTPS – works on Vercel)
+    let country = null;
     let region = null;
+    let city = null;
     let isp = null;
 
     try {
-      const geo = await fetch(`https://ipapi.co/${ip}/json/`).then(r => r.json());
-      city = geo.city || null;
-      region = geo.region || null;
-      isp = geo.org || null;
-    } catch {}
+      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geo = await geoRes.json();
 
+      country = geo.country_name || null;
+      region = geo.region || null;
+      city = geo.city || null;
+      isp = geo.org || null;
+    } catch (geoError) {
+      console.log("Geo lookup failed");
+    }
+
+    // 📦 Data Object (Matches Supabase Columns)
     const data = {
       ip,
-      isp,
+      country,
       region,
+      city,
+      isp,
       timezone,
       user_agent: userAgent,
       os,
@@ -47,12 +57,14 @@ export default async function handler(req, res) {
       created_at
     };
 
+    // 💾 Insert Into Supabase
     await fetch(`${SUPABASE_URL}/rest/v1/visitors`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: "return=minimal"
       },
       body: JSON.stringify(data)
     });
