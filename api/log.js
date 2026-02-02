@@ -3,7 +3,6 @@ export default async function handler(req, res) {
   const SUPABASE_KEY = "sb_publishable_f9MIKH_F9LHTUePZ6D5lYg_0zQob5vX";
 
   try {
-    // 🔎 Get Real IP
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
@@ -14,34 +13,33 @@ export default async function handler(req, res) {
     const timezone = req.query.tz || null;
     const darkMode = req.query.dark === "true";
     const networkType = req.query.net || "unknown";
+
     const created_at = new Date().toISOString();
 
-    // 🖥 Detect Operating System
+    // Detect OS
     let os = "Other";
     if (userAgent.includes("Android")) os = "Android";
     else if (userAgent.includes("Windows")) os = "Windows";
     else if (userAgent.includes("iPhone") || userAgent.includes("iOS")) os = "iOS";
     else if (userAgent.includes("Mac")) os = "Mac";
 
-    // 🌍 GEO LOOKUP (HTTPS – works on Vercel)
     let country = null;
     let region = null;
     let city = null;
     let isp = null;
 
     try {
-      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geoRes = await fetch(`https://ipwho.is/${ip}`);
       const geo = await geoRes.json();
 
-      country = geo.country_name || null;
-      region = geo.region || null;
-      city = geo.city || null;
-      isp = geo.org || null;
-    } catch (geoError) {
-      console.log("Geo lookup failed");
-    }
+      if (geo.success) {
+        country = geo.country;
+        region = geo.region;
+        city = geo.city;
+        isp = geo.connection?.isp;
+      }
+    } catch {}
 
-    // 📦 Data Object (Matches Supabase Columns)
     const data = {
       ip,
       country,
@@ -57,14 +55,12 @@ export default async function handler(req, res) {
       created_at
     };
 
-    // 💾 Insert Into Supabase
     await fetch(`${SUPABASE_URL}/rest/v1/visitors`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        Prefer: "return=minimal"
+        Authorization: `Bearer ${SUPABASE_KEY}`
       },
       body: JSON.stringify(data)
     });
