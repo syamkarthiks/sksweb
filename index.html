@@ -221,12 +221,16 @@
 
 <!-- Logger -->
 <script>
-  const ref = document.referrer || "Direct";
-  const page = window.location.pathname;
-  const localTime = new Date().toISOString();
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+window.addEventListener("load", () => {
+  const payload = {
+    ref: document.referrer || "Direct",
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    dark: window.matchMedia("(prefers-color-scheme: dark)").matches,
+    net: navigator.connection?.effectiveType || "unknown"
+  };
 
-  fetch(`/api/log?page=${encodeURIComponent(page)}&ref=${encodeURIComponent(ref)}&time=${encodeURIComponent(localTime)}&tz=${encodeURIComponent(timezone)}`);
+  fetch("/api/log?" + new URLSearchParams(payload));
+});
 </script>
 
 <!-- Visitor count -->
