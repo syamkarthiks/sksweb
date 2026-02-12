@@ -24,22 +24,24 @@ export default async function handler(req, res) {
     else if (userAgent.includes("iPhone")) os = "iOS";
     else if (userAgent.includes("Mac")) os = "Mac";
 
-    let country = null;
-    let region = null;
     let city = null;
-    let isp = null;
+let region = null;
+let country = null;
+let isp = null;
 
-    try {
-      const geo = await fetch(`https://ipapi.co/${ip}/json/`)
-        .then(r => r.json());
+try {
+  const geoRes = await fetch(`https://ipwho.is/${ip}`);
+  const geo = await geoRes.json();
 
-      country = geo.country_name || null;
-      region = geo.region || null;
-      city = geo.city || null;
-      isp = geo.org || null;
-    } catch {}
-
-    const data = {
+  if (geo.success) {
+    city = geo.city;
+    region = geo.region;
+    country = geo.country;
+    isp = geo.connection?.isp || null;
+  }
+} catch (err) {
+  console.log("Geo lookup failed");
+}
       ip,
       country,
       region,
