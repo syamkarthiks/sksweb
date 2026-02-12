@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
-  const SUPABASE_URL = "https://vjjtljbsyoeszyayunzc.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_f9MIKH_F9LHTUePZ6D5lYg_0zQob5vX";
+
+  const SUPABASE_URL = "YOUR_SUPABASE_URL";
+  const SUPABASE_KEY = "YOUR_ANON_KEY";
 
   try {
+
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
@@ -16,11 +18,10 @@ export default async function handler(req, res) {
 
     const created_at = new Date().toISOString();
 
-    // Detect OS
     let os = "Other";
     if (userAgent.includes("Android")) os = "Android";
     else if (userAgent.includes("Windows")) os = "Windows";
-    else if (userAgent.includes("iPhone") || userAgent.includes("iOS")) os = "iOS";
+    else if (userAgent.includes("iPhone")) os = "iOS";
     else if (userAgent.includes("Mac")) os = "Mac";
 
     let country = null;
@@ -29,15 +30,13 @@ export default async function handler(req, res) {
     let isp = null;
 
     try {
-      const geoRes = await fetch(`https://ipwho.is/${ip}`);
-      const geo = await geoRes.json();
+      const geo = await fetch(`https://ipapi.co/${ip}/json/`)
+        .then(r => r.json());
 
-      if (geo.success) {
-        country = geo.country;
-        region = geo.region;
-        city = geo.city;
-        isp = geo.connection?.isp;
-      }
+      country = geo.country_name || null;
+      region = geo.region || null;
+      city = geo.city || null;
+      isp = geo.org || null;
     } catch {}
 
     const data = {
