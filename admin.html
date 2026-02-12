@@ -1,36 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visitor Logs</title>
+  <title>Visitor Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; }
-    table { border-collapse: collapse; width: 100%; font-size: 12px; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-    th { background: #222; color: white; position: sticky; top: 0; }
-    tr:nth-child(even) { background: #f5f5f5; }
+    body {
+      font-family: Arial;
+      background: #111827;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      font-size: 12px;
+    }
+    th {
+      background: #1f2937;
+    }
   </style>
 </head>
 <body>
 
-<h2>Visitor Logs</h2>
+<h2>Visitor Admin Dashboard</h2>
 
-<table id="table">
+<table>
   <thead>
     <tr>
       <th>IP</th>
       <th>Country</th>
       <th>Region</th>
       <th>City</th>
-      <th>Timezone</th>
       <th>ISP</th>
       <th>OS</th>
-      <th>Page</th>
+      <th>Network</th>
+      <th>Dark Mode</th>
       <th>Referrer</th>
       <th>Time</th>
-      <th>Map</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody id="data">
+  </tbody>
 </table>
 
 <script>
@@ -49,7 +65,6 @@ async function loadData() {
         <td>${v.region || "-"}</td>
         <td>${v.city || "-"}</td>
         <td>${v.isp || "-"}</td>
-        <td>${v.timezone || "-"}</td>
         <td>${v.os || "-"}</td>
         <td>${v.network_type || "-"}</td>
         <td>${v.dark_mode ? "Yes" : "No"}</td>
@@ -59,6 +74,7 @@ async function loadData() {
     `;
   });
 }
+
 loadData();
 </script>
 
