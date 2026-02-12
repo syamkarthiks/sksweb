@@ -200,6 +200,34 @@
         <a href="#">About</a>
         <a href="#">Contact</a>
     </div>
+    <!-- Visitor Logger -->
+<script>
+(async () => {
+  const payload = {
+    ref: document.referrer || "Direct",
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    dark: window.matchMedia('(prefers-color-scheme: dark)').matches,
+    net: navigator.connection?.effectiveType || "unknown"
+  };
+
+  const params = new URLSearchParams(payload).toString();
+  fetch(`/api/log?${params}`);
+})();
+</script>
+
+<!-- Visitor Counter -->
+<script>
+fetch('/api/count')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("visitorCount").innerText =
+      "👁️ Visitors: " + data.total;
+  })
+  .catch(() => {
+    document.getElementById("visitorCount").innerText =
+      "👁️ Visitors: 0";
+  });
+</script>
 
     <div class="logo-wrapper">
         <a href="https://syamdigital.vercel.app/" target="_blank" class="logo">
